@@ -28,3 +28,8 @@ STACK  @ 0x3ffffffd0000
 SIGNAL @ 0x3fffff7fffc0
 SIGNAL DISTANCE FROM STACK: 8192064 byte(s)
 ```
+Two snapshots for quick understanding: 
+
+![Address outside mapped pages](http://goo.gl/1bAhMI)
+
+![Address inside mapped pages](http://goo.gl/2V7cI1)
