@@ -32,19 +32,18 @@ function print_page_size(s)
 BEGIN { last_end = 0; }
 
 {
-  # Count how many pages to compute end. Page unit is KiB.
+  # Count pages to determine 'end' value. Page unit is KiB.
   start = ("0x"$1)+0; size = ($6*1024); end = start + size;
 
   # See if the address we are looking for is out of an
-  # allocated block (between blocks). If it does, compute
-  # its relative distence from the page above and from page below.
+  # allocated block (between blocks, or VMAs). If it does, compute
+  # its relative distance from the VMA above and from VMA below.
   if ( last_end < si_addr && si_addr < start ) {
    print si_addr-last_end,"\t\t o",start-si_addr;
   }
 
-  # If the address is inside an allocated block the start
-  # and the end of the block and mark this fact with a plus (+)
-  # signal.
+  # If the address is inside an allocated VMA, i.e. between 'start'
+  # and the 'end', then mark this fact with a plus (+) signal.
   if ( start <= si_addr && si_addr <= end ) {
     printf ("%x\t + %x\t", start, end);
   } else {
@@ -52,22 +51,22 @@ BEGIN { last_end = 0; }
   }
   print $2, $13, "=>", print_page_size(size);
 
-  # If the block is assigned to be the stack of the main
-  # process (parent ID), record its start address, since,
+  # If the VMA is assigned to be the stack of the main
+  # process (parent ID), record its start address, because
   # as stack grows downwards, the start address is a "border".
   if ( $0 ~ /\[stack\]/ ) {
     stack_border_addr=start;
   }
 
-  # Update the current end address to be used in the next iteration,
+  # Update the current 'end' address to be used in the next iteration,
   # as we need it to see if the address we are searching is in between
-  # blocks, i.e., out side an allocated address.
+  # VMA, i.e., out side an allocated address.
   last_end = end;
 }
 
 END {
-  # Print some nutritional facts, mainly how far the address provide is
-  # from the parent address stack. Generally, the address we are searching
+  # Print some nutritional facts, mainly how far the address provided is
+  # from the parent stack border. Generally, the address we are searching
   # is were a SIGSEGV exception occurred, hence here I call it "SIGNAL".
   print "";
   printf("STACK  @ 0x%x\n", stack_border_addr);
